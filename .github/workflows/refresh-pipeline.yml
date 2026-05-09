@@ -1,0 +1,187 @@
+name: Mutual Fund Data Refresh Pipeline
+
+on:
+  # Schedule: Run daily at 10:00 AM IST (4:30 AM UTC)
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch: # Allow manual runs
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.9'
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+jobs:
+  setup:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.generate_run_id.outputs.run_id }}
+      timestamp: ${{ steps.generate_run_id.outputs.timestamp }}
+      force_refresh: ${{ github.event.inputs.force_refresh || 'false' }}
+      dry_run: ${{ github.event.inputs.dry_run || 'false' }}
+    
+    steps:
+      - name: Generate Run ID
+        id: generate_run_id
+        run: |
+          import hashlib
+          from datetime import datetime, timezone
+          
+          timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+          run_id = f"run_{timestamp}"
+          
+          echo "run_id=${run_id:8}"
+          echo "timestamp=${timestamp}"
+          echo "force_refresh=${{ github.event.inputs.force_refresh || 'false' }}"
+          echo "dry_run=${{ github.event.inputs.dry_run || 'false' }}"
+      
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pandas pyyaml
+      
+      - name: Create Data Directories
+        run: |
+          mkdir -p data/processed
+          mkdir -p data/index
+          mkdir -p data/logs
+      
+      - name: Load Previous Run
+        id: load_previous_run
+        run: |
+          import json
+          import os
+          from pathlib import Path
+          
+          refresh_log_path = Path("data/logs/refresh_log.json")
+          if refresh_log_path.exists():
+            with open(refresh_log_path, 'r') as f:
+              logs = json.load(f)
+              if logs:
+                previous_run = logs[-1]
+                echo "previous_run=${{ toJson(previous_run) }}"
+              else:
+                echo "previous_run={}"
+          else:
+            echo "previous_run={}"
+
+  run_pipeline:
+    name: Run Ingestion Pipeline
+    needs: setup
+    runs-on: ubuntu-latest
+    outputs:
+      phases_completed: ${{ steps.execute_pipeline.outputs.phases_completed }}
+      chunks_processed: ${{ steps.execute_pipeline.outputs.chunks_processed }}
+      embeddings_generated: ${{ steps.execute_pipeline.outputs.embeddings_generated }}
+      pipeline_success: ${{ steps.execute_pipeline.outputs.pipeline_success }}
+      execution_time: ${{ steps.execute_pipeline.outputs.execution_time }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pandas pyyaml
+      
+      - name: Create Data Directories
+        run: |
+          mkdir -p data/processed
+          mkdir -p data/index
+          mkdir -p data/logs
+      
+      - name: Execute Pipeline
+        id: execute_pipeline
+        env:
+          RUN_ID: ${{ needs.setup.outputs.run_id }}
+          TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          FORCE_REFRESH: ${{ needs.setup.outputs.force_refresh }}
+          DRY_RUN: ${{ needs.setup.outputs.dry_run }}
+          PREVIOUS_RUN: ${{ needs.setup.outputs.previous_run }}
+        run: |
+          python .github/workflows/scripts/pipeline_runner.py
+
+  validate_pipeline:
+    name: Validate Pipeline Output
+    needs: run_pipeline
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas pyyaml
+      
+      - name: Validate Output
+        run: |
+          python .github/workflows/scripts/validate_pipeline.py
+
+  upload_artifacts:
+    name: Upload Artifacts
+    needs: [run_pipeline, validate_pipeline]
+    if: success()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: pipeline-artifacts
+          path: |
+            data/processed/
+            data/index/
+            data/logs/
+          retention-days: 30
+
+  notify_success:
+    name: Notify Success
+    needs: [run_pipeline, validate_pipeline]
+    if: success()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Notify Success
+        run: |
+          echo "🎉 Pipeline completed successfully!"
+          echo "Run ID: ${{ needs.run_pipeline.outputs.execution_time }}"
+
+  notify_failure:
+    name: Notify Failure
+    needs: [run_pipeline, validate_pipeline]
+    if: failure()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Notify Failure
+        run: |
+          echo "❌ Pipeline failed!"
+          echo "Check the logs above for details"

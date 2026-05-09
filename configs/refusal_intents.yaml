@@ -1,0 +1,71 @@
+# Refusal Intents Configuration
+# Patterns and responses for non-factual queries
+
+intents:
+  advisory:
+    patterns:
+      - "should i invest"
+      - "should i buy"
+      - "recommend"
+      - "advice"
+      - "suggest"
+      - "which is better"
+      - "best fund"
+      - "top fund"
+      - "good investment"
+    response: |
+      I can only provide factual information about mutual funds and cannot give investment advice. 
+      For investment guidance, please consult a qualified financial advisor.
+      You can explore detailed scheme information on the official Groww pages.
+
+  comparison:
+    patterns:
+      - "compare"
+      - "vs"
+      - "versus"
+      - "difference between"
+      - "which one"
+      - "better than"
+      - "outperform"
+    response: |
+      I cannot compare mutual funds or make performance comparisons. 
+      I can only provide factual information about individual scheme details.
+      Please ask about specific scheme features you're interested in.
+
+  prediction:
+    patterns:
+      - "will"
+      - "future"
+      - "predict"
+      - "forecast"
+      - "expect"
+      - "likely"
+      - "probable"
+    response: |
+      I cannot make predictions about future performance or market movements.
+      I can only provide current factual information about mutual fund schemes.
+      For historical performance data, please refer to the official scheme documents.
+
+  performance:
+    patterns:
+      - "return"
+      - "performance"
+      - "profit"
+      - "gain"
+      - "loss"
+      - "historical"
+    response: |
+      I cannot provide performance analysis or return calculations.
+      I can only share factual scheme details like expense ratio, exit load, and minimum investments.
+      For performance data, please check the official scheme factsheet.
+
+# Default educational link for refusals (when no specific scheme detected)
+default_educational_link: "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth"
+
+# Scheme-specific educational links
+scheme_links:
+  hdfc_mid_cap: "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth"
+  hdfc_equity: "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth"
+  hdfc_focused: "https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth"
+  hdfc_elss: "https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth"
+  hdfc_large_cap: "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth"

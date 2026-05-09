@@ -1,0 +1,44 @@
+# Mutual Fund FAQ Assistant - Approved Sources Registry
+# Hard rule: any URL not present in this file MUST NOT appear in any answer.
+
+schemes:
+  - id: hdfc_mid_cap
+    name: HDFC Mid Cap Fund - Direct Growth
+    category: Mid Cap
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth
+        doc_type: Product_Page
+
+  - id: hdfc_equity
+    name: HDFC Equity Fund - Direct Growth
+    category: Flexi Cap
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth
+        doc_type: Product_Page
+
+  - id: hdfc_focused
+    name: HDFC Focused Fund - Direct Growth
+    category: Focused
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth
+        doc_type: Product_Page
+
+  - id: hdfc_elss
+    name: HDFC ELSS Tax Saver - Direct Plan Growth
+    category: ELSS
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth
+        doc_type: Product_Page
+
+  - id: hdfc_large_cap
+    name: HDFC Large Cap Fund - Direct Growth
+    category: Large Cap
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth
+        doc_type: Product_Page
+
+# Governance rules:
+# 1. Only URLs listed above can be ingested or cited
+# 2. CI compliance gate must fail if any answer cites URLs outside this list
+# 3. Any URL change requires explicit review and update of this file
+# 4. Content hash validation must use this whitelist as source of truth

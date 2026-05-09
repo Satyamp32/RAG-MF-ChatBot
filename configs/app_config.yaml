@@ -1,0 +1,65 @@
+# Application Configuration
+
+# LLM Configuration
+llm:
+  provider: "groq"
+  model: "llama3-70b-8192"
+  temperature: 0.1
+  max_tokens: 150
+  timeout: 30
+
+# Embedding Configuration
+embeddings:
+  model: "sentence-transformers/bge-small-en"
+  device: "cpu"  # or "cuda" if available
+  batch_size: 32
+  dimension: 384
+
+# Vector Database Configuration
+vectorstore:
+  type: "chromadb"
+  persist_directory: "./data/vectorstore"
+  collection_name: "mutual_funds"
+
+# Retrieval Configuration
+retrieval:
+  top_k_dense: 20
+  top_k_sparse: 20
+  top_k_final: 3
+  confidence_threshold: 0.7
+  reranker_model: "BAAI/bge-reranker-base"
+
+# Data Processing Configuration
+processing:
+  chunk_size: 250
+  chunk_overlap: 30
+  max_chunk_size: 400
+  min_chunk_size: 5
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/app.log"
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  cors_origins: ["http://localhost:3000"]
+
+# Cache Configuration
+cache:
+  ttl: 3600  # 1 hour
+  max_size: 1000
+
+# Rate Limiting
+rate_limiting:
+  requests_per_minute: 60
+  burst_size: 10
+
+# Monitoring
+monitoring:
+  enable_metrics: true
+  metrics_port: 9090

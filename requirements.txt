@@ -8,8 +8,8 @@ pydantic-settings==2.1.0
 httpx==0.25.2
 playwright==1.40.0
 beautifulsoup4==4.12.2
-lxml==4.9.3
-trafilatura==1.6.4
+lxml==4.9.4
+trafilatura==1.8.0
 
 # Data processing
 pandas==2.2.3

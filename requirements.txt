@@ -24,7 +24,7 @@ rank-bm25==0.2.2
 
 # Vector database
 chromadb==0.4.22
-
+greenlet==3.0.3
 # LLM providers
 groq==0.4.1
 openai==1.3.7

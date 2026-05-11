@@ -13,13 +13,13 @@ trafilatura==1.6.4
 
 # Data processing
 pandas==2.2.3
-numpy==1.26.4
+numpy==2.1.0
 python-dateutil==2.8.2
 
 # Text processing and NLP
-sentence-transformers==2.3.0
-transformers==4.38.0
-torch==2.2.0
+sentence-transformers==3.0.1
+transformers==4.45.0
+torch==2.5.1
 rank-bm25==0.2.2
 
 # Vector database
